@@ -81,7 +81,7 @@ void ABuilding::Setup(bool created,int BuildingXOver,int BuildingYOver,UMaterial
 				}
 
 				if (BuildingHeight > 1 && floorNumber < BuildingHeight-1 &&
-					i == 0 && j > BuildingY-STAIR_SIZE_REQUIREMENT && j < BuildingY-1)
+					i == 0 && j > BuildingY - STAIR_SIZE_REQUIREMENT && j < BuildingY - 1)
 				{
 
 				}
@@ -257,16 +257,50 @@ void ABuilding::AddBoxColliders()
 	//Floor
 	AddCollider("Floor_Collider", FVector::ZeroVector, FRotator::ZeroRotator, FVector(XSize / 2.0f, YSize / 2.0f, FloorCeilingWidth / 2.0f));
 
-	//Ceiling
-	for (int i = 1; i < BuildingHeight; i++)
+	for (int i = 1; i <= BuildingHeight; i++)
 	{
+		//Ceiling
+		FVector topLeft = CreatedTiles[0].Mesh->GetRelativeLocation() + FVector(0, 0, i * CeilingHeight);
+		topLeft.Z -= 5.0f * i;
 
+		if (i == BuildingHeight)
+		{
+			AddCollider(FString::Printf(TEXT("CeilingCollider_%d"), i), FVector(0, 0, topLeft.Z-5.0f), FRotator::ZeroRotator, FVector(XSize / 2.0f, YSize / 2.0f, 5));
+		}
+		else
+		{
+			AddCollider(FString::Printf(TEXT("CeilingCollider_%d"), i), FVector(TileSize / 2.0f, 0, topLeft.Z-5.0f), FRotator::ZeroRotator, FVector((XSize / 2.0f) - (TileSize / 2.0f), YSize / 2.0f, 5));
+		}
+
+		//Extras - to fill in tiles around stairs
+		if (i == BuildingHeight-1)
+		{
+			AddCollider(FString::Printf(TEXT("CeilingColliderExtra_%d"), i), topLeft + FVector(0, TileSize * (BuildingY - 1), -5.0f), FRotator::ZeroRotator, FVector(TileSize / 2.0f, TileSize / 2.0f, 5));
+		}
+		if (i < BuildingHeight)
+		{
+			for (int j = 0; j < (BuildingY - STAIR_SIZE_REQUIREMENT); j++)
+			{
+				AddCollider(FString::Printf(TEXT("CeilingColliderExtra_%d%d"), i, j), topLeft + FVector(0, TileSize * j, -5.0f), FRotator::ZeroRotator, FVector(TileSize / 2.0f, TileSize / 2.0f, 5));
+			}
+		}
+		
+		//Walls
+		int wallAdjust = i - 1;
+		float wallZPos = topLeft.Z - (CeilingHeight / 2.0f);
+		AddCollider(FString::Printf(TEXT("Wall_Collider_Bottom_%d"), wallAdjust), FVector(0, (YSize / 2.0f) - 5, wallZPos), FRotator::ZeroRotator, FVector(XSize / 2.0f, 5, CeilingHeight / 2.0f));
+		AddCollider(FString::Printf(TEXT("Wall_Collider_Top_%d"), wallAdjust), FVector(0, -(YSize / 2.0f) + 5, wallZPos), FRotator::ZeroRotator, FVector(XSize / 2.0f, 5, CeilingHeight / 2.0f));
+		AddCollider(FString::Printf(TEXT("Wall_Collider_Left_%d"), wallAdjust), FVector(-(XSize / 2.0f) + 5, 0, wallZPos), FRotator(0, 90, 0), FVector(YSize / 2.0f, 5, CeilingHeight / 2.0f));
+		if (wallAdjust == 0)
+		{
+			AddCollider(FString::Printf(TEXT("Wall_Collider_Right_%d"), wallAdjust), FVector((XSize / 2.0f) - 5, TileSize / 2.0f, wallZPos), FRotator(0, 90, 0), FVector((YSize / 2.0f) - TileSize / 2.0f, 5, CeilingHeight / 2.0f));
+		}
+		else
+		{
+			AddCollider(FString::Printf(TEXT("Wall_Collider_Right_%d"), wallAdjust), FVector((XSize / 2.0f) - 5, 0, wallZPos), FRotator(0, 90, 0), FVector(YSize / 2.0f, 5, CeilingHeight / 2.0f));
+		}
+		
 	}
-	//Walls
-	AddCollider("Wall_Collider_Bottom", FVector(0, (YSize / 2.0f) - 5, CeilingHeight / 2.0f), FRotator::ZeroRotator, FVector(XSize / 2.0f, 5, CeilingHeight/2.0f));
-	AddCollider("Wall_Collider_Top", FVector(0, -(YSize / 2.0f) + 5, CeilingHeight / 2.0f), FRotator::ZeroRotator, FVector(XSize / 2.0f, 5, CeilingHeight/2.0f));
-	AddCollider("Wall_Collider_Left", FVector(-(XSize / 2.0f) + 5,0, CeilingHeight / 2.0f), FRotator(0,90,0), FVector(YSize / 2.0f, 5, CeilingHeight/2.0f));
-	AddCollider("Wall_Collider_Right", FVector((XSize / 2.0f) - 5,TileSize/2.0f, CeilingHeight / 2.0f), FRotator(0,90,0), FVector((YSize / 2.0f)- TileSize/2.0f, 5, CeilingHeight/2.0f));
 }
 
 void ABuilding::AddCollider(FString colliderName, FVector relativeLocation, FRotator relativeRotation,FVector extents)
