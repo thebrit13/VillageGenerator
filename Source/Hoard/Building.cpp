@@ -157,12 +157,31 @@ void ABuilding::Setup(bool created,int BuildingXOver,int BuildingYOver,UMaterial
 
 		FVector spawnLoc = topLeft;
 		FVector spawnLoc2 = bottomRight;
+		bool chanceNoWindow1 = FMath::RandRange(0, 100) < NO_WINDOW_CHANCE;
+		bool chanceNoWindow2 = FMath::RandRange(0, 100) < NO_WINDOW_CHANCE;
+		if (chanceNoWindow1 && chanceNoWindow2)
+		{
+			chanceNoWindow1 = true;
+		}
 		for (int i = 0; i < BuildingX; i++)
 		{
 			UStaticMesh* mesh = WallTile;
-			if (FMath::RandRange(0, 100) < WINDOW_CHANCE)
+			if (!chanceNoWindow1)
 			{
-				mesh = WallWindowTile;
+				if (BuildingX % 2 == 1)
+				{
+					if (i != 0 && i < BuildingX - 1 && i % 2 == 1)
+					{
+						mesh = WallWindowTile;
+					}
+				}
+				else
+				{
+					if (i != 0 && i < BuildingX - 1 && i % 2 == 0)
+					{
+						mesh = WallWindowTile;
+					}
+				}
 			}
 
 			CreateMeshComponent(FString::Printf(TEXT("TileW1_%d_%d"), floorNumber, i), TileType::WALL, floorNumber, mesh,
@@ -178,9 +197,22 @@ void ABuilding::Setup(bool created,int BuildingXOver,int BuildingYOver,UMaterial
 		for (int i = 0; i < BuildingY; i++)
 		{
 			UStaticMesh* mesh = WallTile;
-			if (FMath::RandRange(0, 100) < WINDOW_CHANCE)
+			if (!chanceNoWindow2)
 			{
-				mesh = WallWindowTile;
+				if (BuildingY % 2 == 1)
+				{
+					if (i != 0 && i < BuildingY - 1 && i % 2 == 1)
+					{
+						mesh = WallWindowTile;
+					}
+				}
+				else
+				{
+					if (i != 0 && i < BuildingX - 1 && i % 2 == 0)
+					{
+						mesh = WallWindowTile;
+					}
+				}
 			}
 
 			CreateMeshComponent(FString::Printf(TEXT("TileW3_%d_%d"), floorNumber, i), TileType::WALL,floorNumber, mesh,

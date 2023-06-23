@@ -114,7 +114,7 @@ private:
 
 	void AddCollider(FString colliderName, FVector relativeLocation, FRotator relativeRotation,FVector extents);
 
-	const int WINDOW_CHANCE = 12;
+	const int NO_WINDOW_CHANCE = 30;
 	const int STAIR_SIZE_REQUIREMENT = 5;
 
 	UMaterialInstance* WallTileInstance;
